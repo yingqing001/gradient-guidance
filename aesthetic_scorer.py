@@ -44,7 +44,11 @@ class AestheticScorerDiff(torch.nn.Module):
         
         if isinstance(images, torch.Tensor):
             images = (images * 255).round().clamp(0, 255).to(torch.uint8)
+            print('-------------------')
+            print("images shape:")
+            print(images.shape)
         else:
+            print('++++++++++++++++++++')
             images = images.transpose(0, 3, 1, 2)  # NHWC -> NCHW
             images = torch.tensor(images, dtype=torch.uint8)
 
