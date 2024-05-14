@@ -209,9 +209,17 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                     sqrt_alpha_t = self.scheduler.alphas_cumprod[t] **0.5
 
                     # predict the clean sample x_0 for DDIM scheduler
-
                     clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
-                    noise_pred += -1 * sqrt_1minus_alpha_t * self.target_guidance * self.compute_gradient(latents, clean_pred, target=target)
+
+                    # compute the gradient of the loss w.r.t. the latent
+                    out = self.reward_model(clean_pred)
+                    l2_error = 0.5 * torch.nn.MSELoss()(out, target)
+                    self.reward_model.zero_grad()
+                    l2_error.backward()
+                    gradient_guidance = latents.grad.clone()
+
+                    # add guidance to the noise
+                    noise_pred += -1 * sqrt_1minus_alpha_t * self.target_guidance * gradient_guidance
 
 
                 ############################################################
