@@ -272,6 +272,7 @@ class GuidedSDPipeline(StableDiffusionPipeline):
         self.target_guidance = guidance
 
 
+# target y is another tuning parameter other than the strength
     @torch.enable_grad()
     def compute_gradient(self, latent, target):
         latent.requires_grad_(True)
