@@ -10,6 +10,7 @@ from vae import encode
 import os
 import wandb
 import argparse
+from aesthetic_scorer import aesthetic_reward_fn
 
 
 
@@ -33,7 +34,7 @@ def parse():
 args = parse()
 device= args.device
 save_file = True
-reward_model_file='convnet.pth'
+#reward_model_file='convnet.pth'
 
 ## Image Seeds
 if args.seed > 0:
@@ -62,9 +63,10 @@ sd_model = GuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", lo
 sd_model.to(device)
 
 
-
-reward_model = torch.load(reward_model_file).to(device)
+# aesthetic reward model
+reward_model = aesthetic_reward_fn(device=device)
 reward_model.eval()
+
 sd_model.setup_reward_model(reward_model)
 sd_model.set_target(args.target)
 sd_model.set_guidance(args.guidance)
@@ -87,7 +89,7 @@ gt_dataloader = torch.utils.data.DataLoader(gt_dataset, batch_size=20, shuffle=F
 pred_dataset = CustomLatentDataset(image)
 pred_dataloader = torch.utils.data.DataLoader(pred_dataset, batch_size=20, shuffle=False, num_workers=8)
 
-ground_truth_reward_model = torch.load('reward_model.pth').to(device)
+ground_truth_reward_model = aesthetic_reward_fn(device=device)
 ground_truth_reward_model.eval()
 
 with torch.no_grad():
