@@ -5,7 +5,7 @@ import numpy as np
 from transformers import CLIPModel, CLIPProcessor
 import torchvision
 from PIL import Image
-ASSETS_PATH = resources.files("assets")
+ASSETS_PATH = resources.files("asset")
 
 class MLPDiff(nn.Module):
     def __init__(self):
