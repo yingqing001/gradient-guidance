@@ -165,22 +165,25 @@ class GuidedSDPipeline(StableDiffusionPipeline):
         num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
-                # expand the latents if we are doing classifier free guidance
-                latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
-                latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+                # ensure gradient tracking is enabled
+                with torch.enable_grad():
+                    latents.requires_grad_(True)
+                    # expand the latents if we are doing classifier free guidance
+                    latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
+                    latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
-                # predict the noise residual
-                noise_pred = self.unet(
-                    latent_model_input,
-                    t,
-                    encoder_hidden_states=prompt_embeds,
-                    cross_attention_kwargs=cross_attention_kwargs,
-                ).sample
+                    # predict the noise residual
+                    noise_pred = self.unet(
+                        latent_model_input,
+                        t,
+                        encoder_hidden_states=prompt_embeds,
+                        cross_attention_kwargs=cross_attention_kwargs,
+                    ).sample
 
-                # perform guidance
-                if do_classifier_free_guidance:
-                    noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-                    noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
+                    # perform guidance
+                    if do_classifier_free_guidance:
+                        noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+                        noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
 
 
 
@@ -200,10 +203,15 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                 ## self.target_guidance <---> 1 / sigma^2
                 ## self.target  <---> y
 
-                target = torch.FloatTensor([[self.target]]).to(latents.device)
-                target = target.repeat(batch_size * num_images_per_prompt, 1)
-                sqrt_1minus_alpha_t = (1 - self.scheduler.alphas_cumprod[t] ) **0.5
-                noise_pred += sqrt_1minus_alpha_t * self.target_guidance * self.compute_gradient(latents, target=target)
+                    target = torch.FloatTensor([[self.target]]).to(latents.device)
+                    target = target.repeat(batch_size * num_images_per_prompt, 1)
+                    sqrt_1minus_alpha_t = (1 - self.scheduler.alphas_cumprod[t] ) **0.5
+                    sqrt_alpha_t = self.scheduler.alphas_cumprod[t] **0.5
+
+                    # predict the clean sample x_0 for DDIM scheduler
+
+                    clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
+                    noise_pred += -1 * sqrt_1minus_alpha_t * self.target_guidance * self.compute_gradient(latents, clean_pred, target=target)
 
 
                 ############################################################
@@ -213,7 +221,9 @@ class GuidedSDPipeline(StableDiffusionPipeline):
 
 
                 # compute the previous noisy sample x_t -> x_t-1
-                latents = self.scheduler.step(noise_pred, t, latents, **extra_step_kwargs).prev_sample
+                # ensure no gradient tracking
+                with torch.no_grad():
+                    latents = self.scheduler.step(noise_pred, t, latents, **extra_step_kwargs).prev_sample
 
                 # call the callback, if provided
                 if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):
@@ -274,9 +284,9 @@ class GuidedSDPipeline(StableDiffusionPipeline):
 
 # target y is another tuning parameter other than the strength
     @torch.enable_grad()
-    def compute_gradient(self, latent, target):
+    def compute_gradient(self, latent, clean_pred, target):
         latent.requires_grad_(True)
-        out = self.reward_model(latent)
+        out = self.reward_model(clean_pred)
         l2_error = 0.5 * torch.nn.MSELoss()(out, target)
         self.reward_model.zero_grad()
         l2_error.backward()
