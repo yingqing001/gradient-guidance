@@ -6,7 +6,7 @@ import PIL
 from typing import Callable, List, Optional, Union
 
 
-sd_model = DiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
+sd_model = DiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=False)
 sd_model.to('cuda') # TODO
 sd_model.vae.eval()
 
