@@ -18,6 +18,7 @@ from diffusers.utils import (
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+from typing import Union, List, Optional, Callable, Dict, Any
 
 class GuidedSDPipeline(StableDiffusionPipeline):
     @torch.no_grad()
