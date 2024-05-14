@@ -50,7 +50,7 @@ def aesthetic_reward_fn(device=None):
                                                 std=[0.26862954, 0.26130258, 0.27577711])
     scorer = AestheticScorerDiff().to(device)
     scorer.requires_grad_(False)
-
+    scorer.eval()
     def reward_fn(im_pix_un):
         im_pix = ((im_pix_un / 2) + 0.5).clamp(0, 1) 
         im_pix = torchvision.transforms.Resize(target_size)(im_pix)
