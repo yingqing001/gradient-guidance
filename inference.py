@@ -10,7 +10,7 @@ from vae import encode
 import os
 import wandb
 import argparse
-from aesthetic_scorer import aesthetic_reward_fn
+from aesthetic_scorer import AestheticScorerDiff
 
 
 
@@ -64,8 +64,9 @@ sd_model.to(device)
 
 
 # aesthetic reward model
-reward_model = aesthetic_reward_fn(device=device)
-#reward_model.eval()
+reward_model = AestheticScorerDiff().to(device)
+reward_model.requires_grad_(False)
+reward_model.eval()
 
 sd_model.setup_reward_model(reward_model)
 sd_model.set_target(args.target)
@@ -89,8 +90,9 @@ gt_dataloader = torch.utils.data.DataLoader(gt_dataset, batch_size=20, shuffle=F
 pred_dataset = CustomLatentDataset(image)
 pred_dataloader = torch.utils.data.DataLoader(pred_dataset, batch_size=20, shuffle=False, num_workers=8)
 
-ground_truth_reward_model = aesthetic_reward_fn(device=device)
-#ground_truth_reward_model.eval()
+ground_truth_reward_model = AestheticScorerDiff().to(device)
+ground_truth_reward_model.requires_grad_(False)
+ground_truth_reward_model.eval()
 
 with torch.no_grad():
     total_reward_gt = []
