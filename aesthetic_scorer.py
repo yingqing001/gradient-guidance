@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from transformers import CLIPModel, CLIPProcessor
+import torchvision
 from PIL import Image
 ASSETS_PATH = resources.files("assets")
 
@@ -26,7 +27,7 @@ class MLPDiff(nn.Module):
 
 
 class AestheticScorerDiff(torch.nn.Module):
-    def __init__(self, dtype):
+    def __init__(self, dtype=torch.float32):
         super().__init__()
         self.clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
         self.mlp = MLPDiff()
@@ -40,3 +41,22 @@ class AestheticScorerDiff(torch.nn.Module):
         embed = self.clip.get_image_features(pixel_values=images)
         embed = embed / torch.linalg.vector_norm(embed, dim=-1, keepdim=True)
         return self.mlp(embed).squeeze(1)
+    
+
+
+def aesthetic_reward_fn(device=None):
+    target_size = 224
+    normalize = torchvision.transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073],
+                                                std=[0.26862954, 0.26130258, 0.27577711])
+    scorer = AestheticScorerDiff().to(device)
+    scorer.requires_grad_(False)
+
+    def reward_fn(im_pix_un):
+        im_pix = ((im_pix_un / 2) + 0.5).clamp(0, 1) 
+        im_pix = torchvision.transforms.Resize(target_size)(im_pix)
+        im_pix = normalize(im_pix).to(im_pix_un.dtype)
+        rewards = scorer(im_pix)
+        return rewards
+    
+    return reward_fn
+    
