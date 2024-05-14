@@ -65,7 +65,7 @@ sd_model.to(device)
 
 # aesthetic reward model
 reward_model = aesthetic_reward_fn(device=device)
-reward_model.eval()
+#reward_model.eval()
 
 sd_model.setup_reward_model(reward_model)
 sd_model.set_target(args.target)
@@ -90,7 +90,7 @@ pred_dataset = CustomLatentDataset(image)
 pred_dataloader = torch.utils.data.DataLoader(pred_dataset, batch_size=20, shuffle=False, num_workers=8)
 
 ground_truth_reward_model = aesthetic_reward_fn(device=device)
-ground_truth_reward_model.eval()
+#ground_truth_reward_model.eval()
 
 with torch.no_grad():
     total_reward_gt = []
