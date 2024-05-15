@@ -213,24 +213,16 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                     clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
                     clean_pred = self.vae.decode(latents.to(self.vae.dtype) / self.vae.config.scaling_factor).sample
                     
-                    #print('----------------------')
-                    #print('clean_pred')
-                    #print(clean_pred.grad_fn)
-
+                    
                     # compute the gradient of the loss w.r.t. the latent
                     out = self.reward_model(clean_pred)
-                    #print('----------------------')
-                    #print('out')
-                    #print(out.grad_fn)
-
-
                     l2_error = 0.5 * torch.nn.MSELoss()(out, target)
                     self.reward_model.zero_grad()
                     l2_error.backward()
                     gradient_guidance = latents.grad.clone()
 
                     # add guidance to the noise
-                    noise_pred += -1 * sqrt_1minus_alpha_t * self.target_guidance * gradient_guidance
+                    noise_pred += -1 * self.target_guidance * gradient_guidance
 
 
                 ############################################################
