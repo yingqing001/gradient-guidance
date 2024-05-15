@@ -211,6 +211,7 @@ class GuidedSDPipeline(StableDiffusionPipeline):
 
                     # predict the clean sample x_0 for DDIM scheduler
                     clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
+                    clean_pred = self.decode_latents(clean_pred)
 
                     # compute the gradient of the loss w.r.t. the latent
                     out = self.reward_model(clean_pred)
