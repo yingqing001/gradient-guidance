@@ -243,6 +243,10 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                     if callback is not None and i % callback_steps == 0:
                         callback(i, t, latents)
 
+        # output latent for evaluation
+        image_eval = self.vae.decode(latents.to(self.vae.dtype) / self.vae.config.scaling_factor).sample
+
+
         if output_type == "latent":
             image = latents
             has_nsfw_concept = None
@@ -279,7 +283,7 @@ class GuidedSDPipeline(StableDiffusionPipeline):
         if not return_dict:
             return (image, has_nsfw_concept)
 
-        return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept)
+        return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept), image_eval
 
 
     def setup_reward_model(self, reward_model):
