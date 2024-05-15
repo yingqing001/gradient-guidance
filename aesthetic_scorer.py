@@ -62,9 +62,6 @@ class AestheticScorerDiff(torch.nn.Module):
 
         device = next(self.parameters()).device
         inputs = self.processor(images=images, return_tensors="pt")
-        print('----------------------')
-        print('check 2')
-        print(inputs.grad_fn)
         inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
         embed = self.clip.get_image_features(**inputs)
         print('----------------------')
