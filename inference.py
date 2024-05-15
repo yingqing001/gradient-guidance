@@ -109,7 +109,7 @@ with torch.no_grad():
         input = input.to(device)
         gt_reward = ground_truth_reward_model(input)
         #print(gt_rewards, torch.mean(gt_rewards))
-        rewards.append(gt_reward.cpu().numpy())
+        rewards.append(gt_reward.cpu().numpy().item())
 
         if input.shape[0] == 1:
             input = input.squeeze(0)
