@@ -118,6 +118,7 @@ with torch.no_grad():
 print("_"*50)
 print('target:', args.target)
 print('guidance:', args.guidance)
+print('prompt:', args.prompt)
 print('reward:', rewards)
 print('mean reward:', sum(rewards)/len(rewards))
 
