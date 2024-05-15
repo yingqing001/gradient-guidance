@@ -212,10 +212,14 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                     # predict the clean sample x_0 for DDIM scheduler
                     clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
                     clean_pred = self.vae.decode(latents.to(self.vae.dtype) / self.vae.config.scaling_factor).sample
+                    print('----------------------')
+                    print('clean_pred')
+                    print(clean_pred.grad_fn)
 
                     # compute the gradient of the loss w.r.t. the latent
                     out = self.reward_model(clean_pred)
                     print('----------------------')
+                    print('out')
                     print(out.grad_fn)
 
 
