@@ -82,6 +82,11 @@ for i in range(args.num_images // args.bs):
     image.extend(image_)
 
 
+if save_file:
+    for idx, im in enumerate(image):
+        im.save(args.out_dir +'/'+ f'{idx}_gt_pred_.png')
+
+
 ###### evaluation and metric #####
 
 gt_dataset = CustomCIFAR10Dataset(image)
