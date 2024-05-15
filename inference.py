@@ -85,9 +85,6 @@ for i in range(args.num_images // args.bs):
     image_eval.append(image_eval_)
 
 
-if save_file:
-    for idx, im in enumerate(image):
-        im.save(args.out_dir +'/'+ f'{idx}_gt_pred_.png')
 
 
 ###### evaluation and metric #####
@@ -104,22 +101,28 @@ ground_truth_reward_model.eval()
 
 rewards = []
 with torch.no_grad():
-    total_reward_gt = []
+    #total_reward_gt = []
     for idx, input in  enumerate(image_eval):
         input = input.to(device)
         gt_reward = ground_truth_reward_model(input)
         #print(gt_rewards, torch.mean(gt_rewards))
         rewards.append(gt_reward.cpu().numpy().item())
 
-        if input.shape[0] == 1:
-            input = input.squeeze(0)
-        print(input.shape)
-        image = (input.clone().detach() / 2 + 0.5).clamp(0, 1)
-        pil = Image.fromarray((image.cpu().numpy().transpose(1, 2, 0) * 255).astype(np.uint8))
-        pil = pil.resize((256, 256))
-        pil.save(args.out_dir +'/'+ f'{idx}_latent_reward_{rewards[idx]:.4f}_.png')
+        #if input.shape[0] == 1:
+        #    input = input.squeeze(0)
+        #print(input.shape)
+        #image = (input.clone().detach() / 2 + 0.5).clamp(0, 1)
+        #pil = Image.fromarray((image.cpu().numpy().transpose(1, 2, 0) * 255).astype(np.uint8))
+       # pil = pil.resize((256, 256))
+        #pil.save(args.out_dir +'/'+ f'{idx}_latent_reward_{rewards[idx]:.4f}_.png')
 print("_"*50)
 print(rewards)
+
+
+if save_file:
+    for idx, im in enumerate(image):
+        im.save(args.out_dir +'/'+ f'{idx}_reward_{rewards[idx]:.4f}_.png')
+
 
     #total_reward_gt = np.concatenate(total_reward_gt, axis=None)
 
