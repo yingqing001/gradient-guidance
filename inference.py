@@ -79,7 +79,8 @@ for i in range(args.num_images // args.bs):
         init_i = None
     else:
         init_i = init_latents[i]
-    image_, image_eval_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i).images # List of PIL.Image objects
+    image_, image_eval_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i) # List of PIL.Image objects
+    image_ = image_.images
     image.extend(image_)
     image_eval.append(image_eval_)
 
