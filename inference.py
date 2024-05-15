@@ -111,9 +111,9 @@ with torch.no_grad():
         #print(gt_rewards, torch.mean(gt_rewards))
         rewards.append(gt_reward.cpu().numpy())
 
-        if image.shape[0] == 1:
-            image = image.squeeze(0)
-        print(image.shape)
+        if input.shape[0] == 1:
+            input = input.squeeze(0)
+        print(input.shape)
         image = (input.clone().detach() / 2 + 0.5).clamp(0, 1)
         pil = Image.fromarray((image.cpu().numpy().transpose(1, 2, 0) * 255).astype(np.uint8))
         pil = pil.resize((256, 256))
