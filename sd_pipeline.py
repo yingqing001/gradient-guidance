@@ -217,8 +217,7 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                     print(clean_pred.grad_fn)
 
                     # compute the gradient of the loss w.r.t. the latent
-                    with torch.no_grad():
-                        out = self.reward_model(clean_pred)
+                    out = self.reward_model(clean_pred)
                     print('----------------------')
                     print('out')
                     print(out.grad_fn)
