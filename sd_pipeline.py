@@ -215,6 +215,10 @@ class GuidedSDPipeline(StableDiffusionPipeline):
 
                     # compute the gradient of the loss w.r.t. the latent
                     out = self.reward_model(clean_pred)
+                    print('----------------------')
+                    print(out.grad_fn)
+
+
                     l2_error = 0.5 * torch.nn.MSELoss()(out, target)
                     self.reward_model.zero_grad()
                     l2_error.backward()
