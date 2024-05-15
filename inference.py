@@ -110,8 +110,11 @@ with torch.no_grad():
         gt_reward = ground_truth_reward_model(input)
         #print(gt_rewards, torch.mean(gt_rewards))
         rewards.append(gt_reward.cpu().numpy())
-        image = (input.clone().detach() / 2 + 0.5).clamp(0, 1)
+
+        if image.shape[0] == 1:
+            image = image.squeeze(0)
         print(image.shape)
+        image = (input.clone().detach() / 2 + 0.5).clamp(0, 1)
         pil = Image.fromarray((image.cpu().numpy().transpose(1, 2, 0) * 255).astype(np.uint8))
         pil = pil.resize((256, 256))
         pil.save(args.out_dir +'/'+ f'{idx}_latent_reward_{rewards[idx]:.4f}_.png')
