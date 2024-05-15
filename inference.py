@@ -22,7 +22,7 @@ def parse():
     parser.add_argument("--prompt", type=str, default= "a nice photo")
     parser.add_argument("--out_dir", type=str, default= "")
     parser.add_argument("--num_images", type=int, default=4)
-    parser.add_argument("--bs", type=int, default=4)
+    parser.add_argument("--bs", type=int, default=1)
     parser.add_argument("--seed", type=int, default=-1)
 
     args = parser.parse_args()
