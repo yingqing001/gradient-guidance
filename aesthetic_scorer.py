@@ -43,6 +43,7 @@ class AestheticScorerDiff(torch.nn.Module):
         #                                                   std=[0.26862954, 0.26130258, 0.27577711])
         
         if isinstance(images, torch.Tensor):
+            print(images)
             images = (images * 255).round().clamp(0, 255).to(torch.uint8)
             #print('-------------------')
             #print("images shape:")
