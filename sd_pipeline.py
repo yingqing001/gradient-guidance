@@ -241,6 +241,7 @@ class GuidedSDPipeline(StableDiffusionPipeline):
 
                 # compute the previous noisy sample x_t -> x_t-1
                 # ensure no gradient tracking
+                latents = latents.detach()
                 latents = self.scheduler.step(noise_pred, t, latents, **extra_step_kwargs).prev_sample
                 latents = latents.detach()
 
