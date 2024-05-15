@@ -30,7 +30,7 @@ class AestheticScorerDiff(torch.nn.Module):
     def __init__(self, dtype=torch.float32):
         super().__init__()
         self.clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        #self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
         self.mlp = MLPDiff()
         state_dict = torch.load(ASSETS_PATH.joinpath("sac+logos+ava1-l14-linearMSE.pth"))
         self.mlp.load_state_dict(state_dict)
@@ -38,41 +38,20 @@ class AestheticScorerDiff(torch.nn.Module):
         self.eval()
                                                
     def __call__(self, images):
-        #target_size = 224
-        #normalize = torchvision.transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073],
-        #                                                   std=[0.26862954, 0.26130258, 0.27577711])
+        target_size = 224
+        normalize = torchvision.transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073],
+                                                           std=[0.26862954, 0.26130258, 0.27577711])
         
-        if isinstance(images, torch.Tensor):
-            #print(images)
-            images = (images + 1) / 2.0
-            images = images.clamp(0, 1)
-            #images = (images * 255).round().clamp(0, 255).to(torch.uint8)
-            #print(images)
-            #print('-------------------')
-            #print("images shape:")
-            #print(images.shape)
-            print('----------------------')
-            print('check 1')
-            print(images.grad_fn)
-        else:
-            #print('++++++++++++++++++++')
-            #print("images shape:")
-            images = images.transpose(0, 3, 1, 2)  # NHWC -> NCHW
-            images = torch.tensor(images, dtype=torch.uint8)
+        images = ((images + 1.0) / 2.0).clamp(0, 1)
+        im_pix = torchvision.transforms.Resize(target_size)(images)
+        im_pix = normalize(im_pix).to(images.dtype)
+           
 
         device = next(self.parameters()).device
-        inputs = self.processor(images=images, return_tensors="pt")
-        inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
-        embed = self.clip.get_image_features(**inputs)
-        print('----------------------')
-        print('check 3')
-        print(embed.grad_fn)
-        # normalize embedding
+        embed = self.clip.get_image_features(pixel_values=im_pix)
         embed = embed / torch.linalg.vector_norm(embed, dim=-1, keepdim=True)
-        print('----------------------')
-        print('check 4')
-        print(embed.grad_fn)
         return self.mlp(embed).squeeze(1)
+    
 
         
     
