@@ -51,6 +51,9 @@ class AestheticScorerDiff(torch.nn.Module):
             #print('-------------------')
             #print("images shape:")
             #print(images.shape)
+            print('----------------------')
+            print('check 1')
+            print(images.grad_fn)
         else:
             #print('++++++++++++++++++++')
             #print("images shape:")
@@ -59,10 +62,19 @@ class AestheticScorerDiff(torch.nn.Module):
 
         device = next(self.parameters()).device
         inputs = self.processor(images=images, return_tensors="pt")
+        print('----------------------')
+        print('check 2')
+        print(inputs.grad_fn)
         inputs = {k: v.to(self.dtype).to(device) for k, v in inputs.items()}
         embed = self.clip.get_image_features(**inputs)
+        print('----------------------')
+        print('check 3')
+        print(embed.grad_fn)
         # normalize embedding
         embed = embed / torch.linalg.vector_norm(embed, dim=-1, keepdim=True)
+        print('----------------------')
+        print('check 4')
+        print(embed.grad_fn)
         return self.mlp(embed).squeeze(1)
 
         
