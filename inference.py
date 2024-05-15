@@ -45,7 +45,7 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = f'imgs/target{args.target}guidance{args.guidance}'
+    args.out_dir = f'imgs/target{args.target}guidance{args.guidance}_{args.prompt}'
 try:
     os.makedirs(args.out_dir)
 except:
@@ -73,13 +73,15 @@ sd_model.set_target(args.target)
 sd_model.set_guidance(args.guidance)
 
 image = []
+image_eval = []
 for i in range(args.num_images // args.bs):
     if init_latents is None:
         init_i = None
     else:
         init_i = init_latents[i]
-    image_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i).images # List of PIL.Image objects
+    image_, image_eval_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i).images # List of PIL.Image objects
     image.extend(image_)
+    image_eval.append(image_eval_)
 
 
 if save_file:
@@ -89,44 +91,51 @@ if save_file:
 
 ###### evaluation and metric #####
 
-gt_dataset = CustomCIFAR10Dataset(image)
-gt_dataloader = torch.utils.data.DataLoader(gt_dataset, batch_size=20, shuffle=False, num_workers=8)
+#gt_dataset = CustomCIFAR10Dataset(image)
+#gt_dataloader = torch.utils.data.DataLoader(gt_dataset, batch_size=20, shuffle=False, num_workers=8)
 
-pred_dataset = CustomLatentDataset(image)
-pred_dataloader = torch.utils.data.DataLoader(pred_dataset, batch_size=20, shuffle=False, num_workers=8)
+#pred_dataset = CustomLatentDataset(image)
+#pred_dataloader = torch.utils.data.DataLoader(pred_dataset, batch_size=20, shuffle=False, num_workers=8)
 
 ground_truth_reward_model = AestheticScorerDiff().to(device)
 ground_truth_reward_model.requires_grad_(False)
 ground_truth_reward_model.eval()
 
+rewards = []
 with torch.no_grad():
     total_reward_gt = []
-    for inputs in gt_dataloader:
-        inputs = inputs.to(device)
-        gt_rewards = ground_truth_reward_model(inputs)
+    for idx, input in  enumerate(image_eval):
+        input = input.to(device)
+        gt_reward = ground_truth_reward_model(input)
         #print(gt_rewards, torch.mean(gt_rewards))
-        total_reward_gt.append( gt_rewards.cpu().numpy() )
+        rewards.append( gt_reward.cpu().numpy())
+        image = (input.clone().detach() / 2 + 0.5).clamp(0, 1)
+        pil = Image.fromarray((image.cpu().numpy().transpose(1, 2, 0) * 255).astype(np.uint8))
+        pil = pil.resize((256, 256))
+        pil.save(args.out_dir +'/'+ f'{idx}_latent_reward_{rewards[idx]:.4f}_.png')
+print("_"*50)
+print(rewards)
 
-    total_reward_gt = np.concatenate(total_reward_gt, axis=None)
+    #total_reward_gt = np.concatenate(total_reward_gt, axis=None)
 
-    wandb.log({"gt_reward_mean": np.mean(total_reward_gt) ,
-               "gt_reward_std": np.std(total_reward_gt) })
+    #wandb.log({"gt_reward_mean": np.mean(total_reward_gt) ,
+     #          "gt_reward_std": np.std(total_reward_gt) })
 
 
-with torch.no_grad():
-    total_reward_pred= []
-    for inputs in pred_dataloader:
-        inputs = inputs.to(device)
-        inputs = encode(inputs)
-        pred_rewards = reward_model(inputs)
+#with torch.no_grad():
+#    total_reward_pred= []
+#    for inputs in pred_dataloader:
+#        inputs = inputs.to(device)
+#        inputs = encode(inputs)
+ #       pred_rewards = reward_model(inputs)
         #print(pred_rewards, torch.mean(pred_rewards))
-        total_reward_pred.append(pred_rewards.cpu().numpy())
+ #       total_reward_pred.append(pred_rewards.cpu().numpy())
 
-    total_reward_pred = np.concatenate(total_reward_pred, axis=None)
-    wandb.log({"pred_reward_mean": np.mean(total_reward_pred) ,
-               "pred_reward_std": np.std(total_reward_pred) })
+ #   total_reward_pred = np.concatenate(total_reward_pred, axis=None)
+#    wandb.log({"pred_reward_mean": np.mean(total_reward_pred) ,
+ #              "pred_reward_std": np.std(total_reward_pred) })
 
 
-if save_file:
-    for idx, im in enumerate(image):
-        im.save(args.out_dir +'/'+ f'{idx}_gt_{total_reward_gt[idx]:.4f}_pred_{total_reward_pred[idx]:.4f}.png')
+#if save_file:
+#    for idx, im in enumerate(image):
+#        im.save(args.out_dir +'/'+ f'{idx}_gt_{total_reward_gt[idx]:.4f}_pred_{total_reward_pred[idx]:.4f}.png')
