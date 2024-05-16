@@ -273,10 +273,16 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
         return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept), image_eval
 
 
-    def set_linear_reward_model(self, gradients, biases):
-        self.gradients = gradients
+    def set_linear_reward_model(self, gradients = None, biases = None, is_init = False, batch_size = 1):
+        if is_init:
+            self.gradients = torch.zeros(batch_size, 3, 256, 256)
+            self.biases = torch.zeros(1)
+
+        else:
+            self.gradients = gradients
+            self.biases = biases
+        
         self.gradients.requires_grad_(False)
-        self.biases = biases
         self.biases.requires_grad_(False)
         
 
