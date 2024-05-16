@@ -45,7 +45,7 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = f'imgs/target{args.target}guidance{args.guidance}_{args.prompt}'
+    args.out_dir = f'imgs/seed{args.seed}target{args.target}guidance{args.guidance}_{args.prompt}'
 try:
     os.makedirs(args.out_dir)
 except:
@@ -116,6 +116,7 @@ with torch.no_grad():
        # pil = pil.resize((256, 256))
         #pil.save(args.out_dir +'/'+ f'{idx}_latent_reward_{rewards[idx]:.4f}_.png')
 print("_"*50)
+print('seed:', args.seed)
 print('target:', args.target)
 print('guidance:', args.guidance)
 print('prompt:', args.prompt)
