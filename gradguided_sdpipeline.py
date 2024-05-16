@@ -208,7 +208,7 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
                     # compute linear approximation of the reward
                     #self.gradients = self.gradients.to(device)
                     #self.biases = self.biases.to(device)
-                    out = self.gradients * clean_pred + self.biases
+                    out = torch.einsum('bijk,bijk->b', self.gradients, clean_pred) + self.biases
 
                     # compute the gradient of the loss w.r.t. the latents
                     l2_error = 0.5 * torch.nn.MSELoss()(out, target)
