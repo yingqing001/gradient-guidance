@@ -62,11 +62,12 @@ try:
 except:
     pass
 
-wandb.init(project="guided_dm", config={
+wandb.init(project="gradient_guided_dm", name=f'target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}',
+    config={
     'target': args.target,
     'guidance': args.guidance, 
     'prompt': args.prompt,
-    'num_images': args.num_images
+    'seed': args.seed
 })
 
 
@@ -112,21 +113,28 @@ for n in range(args.repeat_epoch):
         sd_model.set_linear_reward_model(gradients = grads, biases = biases)
         rewards = rewards.detach().cpu().numpy()
         image_rewards[k, n] = rewards
+        wandb.log({'step': k, 'reward_mean': rewards.mean(), 'reward_std': rewards.std()})
 
         image_ = image_.images
         for idx, im in enumerate(image_):
             im.save(img_dir + f'/{n * args.bs + idx}_optstep_{k}_reward_{(rewards[idx]).item():.4f}_.png')
 
 
-mean_rewards = image_rewards.mean(axis=(1, 2))
+# reshape image_rewards to [opt_steps, repeat_epoch * bs]
+image_rewards = image_rewards.reshape(args.opt_steps, -1)
+# calculate mean rewards and std
+mean_rewards = np.mean(image_rewards, axis=1)
+std_rewards = np.std(image_rewards, axis=1)
+wandb.log({'mean_reward_total': mean_rewards, 'std_reward_total': std_rewards})
 
-## plot mean rewards
+## plot mean rewards and std error bar
 import matplotlib.pyplot as plt
-plt.plot(mean_rewards)
+x = np.arange(args.opt_steps)
+plt.figure(figsize=(10, 6))
+plt.plot(x, mean_rewards, color='dodgerblue')
+plt.fill_between(x, mean_rewards - std_rewards, mean_rewards + std_rewards, color='dodgerblue', alpha=0.2)
 plt.xlabel('Optimization Steps')
 plt.ylabel('Reward')
+# save
 plt.savefig(args.out_dir + '/reward_plot.png')
-
-wandb.log({'mean_reward': mean_rewards[-1]})
-wandb.finish()
-
+plt.close()
