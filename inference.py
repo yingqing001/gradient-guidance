@@ -29,9 +29,18 @@ def parse():
     return args
 
 
+
 ######### preparation ##########
 
 args = parse()
+
+print("_"*50)
+print('seed:', args.seed)
+print('target:', args.target)
+print('guidance:', args.guidance)
+print('prompt:', args.prompt)
+
+
 device= args.device
 save_file = True
 #reward_model_file='convnet.pth'
