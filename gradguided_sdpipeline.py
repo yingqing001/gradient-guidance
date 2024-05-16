@@ -206,6 +206,8 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
                     
                     
                     # compute linear approximation of the reward
+                    #self.gradients = self.gradients.to(device)
+                    #self.biases = self.biases.to(device)
                     out = self.gradients * clean_pred + self.biases
 
                     # compute the gradient of the loss w.r.t. the latents
@@ -291,6 +293,8 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
         
         self.gradients.requires_grad_(False)
         self.biases.requires_grad_(False)
+        self.gradients = self.gradients.to(self._execution_device)
+        self.biases = self.biases.to(self._execution_device)
         
 
     def set_target(self, target):
