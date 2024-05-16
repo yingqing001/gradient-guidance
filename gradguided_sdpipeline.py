@@ -197,12 +197,12 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
                     clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
                     clean_pred = self.vae.decode(clean_pred.to(self.vae.dtype) / self.vae.config.scaling_factor).sample
 
-                    print('clean_pred shape:')
-                    print(clean_pred.shape)
-                    print('gradients shape:')
-                    print(self.gradients.shape)
-                    print('biases shape:')
-                    print(self.biases.shape)
+                    #print('clean_pred shape:')
+                    #print(clean_pred.shape)
+                    #print('gradients shape:')
+                    #print(self.gradients.shape)
+                    #print('biases shape:')
+                    #print(self.biases.shape)
                     
                     
                     # compute linear approximation of the reward
@@ -282,7 +282,7 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
 
     def set_linear_reward_model(self, gradients = None, biases = None, is_init = False, batch_size = 1):
         if is_init:
-            self.gradients = torch.zeros(batch_size, 3, 256, 256)
+            self.gradients = torch.zeros(batch_size, 3, 512, 512)
             self.biases = torch.zeros(1)
 
         else:
