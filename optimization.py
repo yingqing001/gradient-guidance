@@ -83,10 +83,11 @@ def get_grad_eval(ims, reward_model):
     ims = ims.to(device)
     ims.requires_grad = True
     rewards = reward_model(ims)
-    print('-'*50)
-    print('rewards shape:', rewards.shape)
-    print('rewards:', rewards)
-    rewards.backward()
+    #print('-'*50)
+    #print('rewards shape:', rewards.shape)
+    #print('rewards:', rewards)
+    grad_outputs = torch.ones_like(rewards, device=device)
+    rewards.backward(gradient=grad_outputs)
     grads = ims.grad
     biases = - torch.einsum('bijk,bijk->b', grads, ims) + rewards
 
