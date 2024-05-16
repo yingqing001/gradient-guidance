@@ -48,7 +48,7 @@ save_file = True
 ## Image Seeds
 if args.seed > 0:
     torch.manual_seed(args.seed)
-    shape = (args.repeat_ephoch, args.bs , 4, 64, 64)
+    shape = (args.repeat_epoch, args.bs , 4, 64, 64)
     init_latents = torch.randn(shape, device=device)
 else:
     init_latents = None
