@@ -109,7 +109,7 @@ for n in range(args.repeat_epoch):
         grads, biases, rewards = get_grad_eval(image_eval_, reward_model)
         grads = grads.clone().detach()
         biases = biases.clone().detach()
-        sd_model.set_linear_reward_model(grads = grads, biases = biases)
+        sd_model.set_linear_reward_model(gradients = grads, biases = biases)
         rewards = rewards.cpu().numpy()
         image_rewards[k, n] = rewards
 
