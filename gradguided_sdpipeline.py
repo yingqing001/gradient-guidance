@@ -196,6 +196,13 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
                     # predict the clean sample x_0 for DDIM scheduler
                     clean_pred = (latents - sqrt_1minus_alpha_t * noise_pred) / sqrt_alpha_t 
                     clean_pred = self.vae.decode(clean_pred.to(self.vae.dtype) / self.vae.config.scaling_factor).sample
+
+                    print('clean_pred shape:')
+                    print(clean_pred.shape)
+                    print('gradients shape:')
+                    print(self.gradients.shape)
+                    print('biases shape:')
+                    print(self.biases.shape)
                     
                     
                     # compute linear approximation of the reward
