@@ -78,9 +78,14 @@ sd_model.to(device)
 
 
 # aesthetic reward model
-reward_model = AestheticScorerDiff().to(device)
+#reward_model = AestheticScorerDiff().to(device)
+
+# reward of RCGDM
+reward_model = torch.load('reward_model.pth').to(device)
+
 reward_model.requires_grad_(False)
 reward_model.eval()
+
 
 def get_grad_eval(ims, reward_model):
     ims = ims.to(device)
