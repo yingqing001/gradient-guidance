@@ -125,7 +125,8 @@ image_rewards = image_rewards.reshape(args.opt_steps, -1)
 # calculate mean rewards and std
 mean_rewards = np.mean(image_rewards, axis=1)
 std_rewards = np.std(image_rewards, axis=1)
-wandb.log({'mean_reward_total': mean_rewards, 'std_reward_total': std_rewards})
+for k in range(args.opt_steps):
+    wandb.log({'mean_reward_total': mean_rewards[k], 'std_reward_total': std_rewards[k]})
 
 ## plot mean rewards and std error bar
 import matplotlib.pyplot as plt
