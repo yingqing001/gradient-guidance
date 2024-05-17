@@ -94,8 +94,8 @@ def get_grad_eval(ims, reward_model):
     rewards_sum = rewards.sum()
     rewards_sum.backward()
     grads = ims.grad
-    #biases = - torch.einsum('bijk,bijk->b', grads, ims) + rewards
-    biases = - torch.einsum('bijk,bijk->b', grads, ims)
+    biases = - torch.einsum('bijk,bijk->b', grads, ims) + rewards
+    #biases = - torch.einsum('bijk,bijk->b', grads, ims)
 
     return grads, biases, rewards
 
