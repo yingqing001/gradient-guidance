@@ -60,7 +60,8 @@ try:
 except:
     pass
 
-wandb.init(project="guided_dm", config={
+wandb.init(project="guided_dm", name=f'target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}',
+    config={
     'target': args.target,
     'guidance': args.guidance, 
     'prompt': args.prompt,
@@ -131,6 +132,8 @@ print('guidance:', args.guidance)
 print('prompt:', args.prompt)
 print('reward:', rewards)
 print('mean reward:', sum(rewards)/len(rewards))
+
+wandb.log({"reward_mean": sum(rewards)/len(rewards)})
 
 
 if save_file:
