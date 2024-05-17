@@ -40,6 +40,8 @@ print('seed:', args.seed)
 print('target:', args.target)
 print('guidance:', args.guidance)
 print('prompt:', args.prompt)
+print('opt_steps:', args.opt_steps)
+print('repeat_epoch:', args.repeat_epoch)
 
 
 device= args.device
