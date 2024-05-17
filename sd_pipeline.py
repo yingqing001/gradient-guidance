@@ -222,8 +222,8 @@ class GuidedSDPipeline(StableDiffusionPipeline):
                     gradient_guidance = latents.grad.clone()
 
                     # add guidance to the noise
-                    #noise_pred +=  self.target_guidance * gradient_guidance
-                    noise_pred += sqrt_1minus_alpha_t * self.target_guidance * gradient_guidance
+                    noise_pred +=  self.target_guidance * gradient_guidance
+                    #noise_pred += sqrt_1minus_alpha_t * self.target_guidance * gradient_guidance
 
 
                 ############################################################
