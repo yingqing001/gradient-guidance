@@ -116,7 +116,7 @@ with torch.no_grad():
         input = input.to(device)
         gt_reward = ground_truth_reward_model(input)
         #print(gt_rewards, torch.mean(gt_rewards))
-        rewards.append(gt_reward.cpu().numpy().item())
+        rewards.append(gt_reward.cpu().numpy())
 
         #if input.shape[0] == 1:
         #    input = input.squeeze(0)
@@ -138,7 +138,7 @@ wandb.log({"reward_mean": sum(rewards)/len(rewards)})
 
 if save_file:
     for idx, im in enumerate(image):
-        im.save(args.out_dir +'/'+ f'{idx}_reward_{rewards[idx]:.4f}_.png')
+        im.save(args.out_dir +'/'+ f'{idx}_reward_{(rewards[idx]).item():.4f}_.png')
 
 
     #total_reward_gt = np.concatenate(total_reward_gt, axis=None)
