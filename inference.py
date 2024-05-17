@@ -82,8 +82,12 @@ sd_model.setup_reward_model(reward_model)
 sd_model.set_target(args.target)
 sd_model.set_guidance(args.guidance)
 
+ground_truth_reward_model = AestheticScorerDiff().to(device)
+ground_truth_reward_model.requires_grad_(False)
+ground_truth_reward_model.eval()
+
 image = []
-image_eval = []
+rewards = np.zeros([args.num_images // args.bs, args.bs])
 for i in range(args.num_images // args.bs):
     if init_latents is None:
         init_i = None
@@ -92,8 +96,11 @@ for i in range(args.num_images // args.bs):
     image_, image_eval_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i) # List of PIL.Image objects
     image_ = image_.images
     image.extend(image_)
-    image_eval.append(image_eval_)
-
+    re = ground_truth_reward_model(image_eval_)
+    rewards[i] = re.cpu().numpy()
+    for idx, im in enumerate(image_):
+        im.save(args.out_dir +'/'+ f'{i*args.bs+idx}_reward_{(rewards[i][idx]).item():.4f}_.png')
+    
 
 
 
@@ -105,18 +112,16 @@ for i in range(args.num_images // args.bs):
 #pred_dataset = CustomLatentDataset(image)
 #pred_dataloader = torch.utils.data.DataLoader(pred_dataset, batch_size=20, shuffle=False, num_workers=8)
 
-ground_truth_reward_model = AestheticScorerDiff().to(device)
-ground_truth_reward_model.requires_grad_(False)
-ground_truth_reward_model.eval()
 
-rewards = []
-with torch.no_grad():
+
+#rewards = []
+#with torch.no_grad():
     #total_reward_gt = []
-    for idx, input in  enumerate(image_eval):
-        input = input.to(device)
-        gt_reward = ground_truth_reward_model(input)
+#    for idx, input in  enumerate(image_eval):
+ #       input = input.to(device)
+ #       gt_reward = ground_truth_reward_model(input)
         #print(gt_rewards, torch.mean(gt_rewards))
-        rewards.append(gt_reward.cpu().numpy())
+ #       rewards.append(gt_reward.cpu().numpy())
 
         #if input.shape[0] == 1:
         #    input = input.squeeze(0)
@@ -131,14 +136,11 @@ print('target:', args.target)
 print('guidance:', args.guidance)
 print('prompt:', args.prompt)
 print('reward:', rewards)
-print('mean reward:', sum(rewards)/len(rewards))
+print('mean reward:', rewards.mean())
 
-wandb.log({"reward_mean": sum(rewards)/len(rewards)})
+wandb.log({"reward_mean": rewards.mean()})
 
 
-if save_file:
-    for idx, im in enumerate(image):
-        im.save(args.out_dir +'/'+ f'{idx}_reward_{(rewards[idx]).item():.4f}_.png')
 
 
     #total_reward_gt = np.concatenate(total_reward_gt, axis=None)
