@@ -122,6 +122,8 @@ for n in range(args.repeat_epoch):
         biases = biases.clone().detach()
         sd_model.set_linear_reward_model(gradients = grads, biases = biases)
         rewards = rewards.detach().cpu().numpy()
+        if len(rewards.shape) > 1:
+            rewards = rewards.squeeze()
         image_rewards[k, n] = rewards
         wandb.log({'step': k, 'reward_mean': rewards.mean(), 'reward_std': rewards.std()})
 
