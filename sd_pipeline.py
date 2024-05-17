@@ -223,7 +223,7 @@ class GuidedSDPipeline(StableDiffusionPipeline):
 
                     # add guidance to the noise
                     #noise_pred += sqrt_alpha_t * self.target_guidance * gradient_guidance
-                    noise_pred += self.target_guidance * gradient_guidance
+                    noise_pred += sqrt_1minus_alpha_t * self.target_guidance * gradient_guidance
 
 
                 ############################################################
