@@ -9,6 +9,7 @@ import os
 import wandb
 import argparse
 from aesthetic_scorer import AestheticScorerDiff
+import math
 
 
 
@@ -111,6 +112,8 @@ for n in range(args.repeat_epoch):
     sd_model.set_guidance(args.guidance)
     sd_model.set_linear_reward_model(is_init = True, batch_size = args.bs)
     for k in range(args.opt_steps):
+        #sd_model.set_guidance((args.guidance/math.sqrt(k + 1.0)))
+        sd_model.set_guidance((args.guidance/(k + 1.0)))
         if init_latents is None:
             init_i = None
         else:
