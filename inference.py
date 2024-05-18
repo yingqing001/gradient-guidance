@@ -86,7 +86,8 @@ sd_model.setup_reward_model(reward_model)
 sd_model.set_target(args.target)
 sd_model.set_guidance(args.guidance)
 
-ground_truth_reward_model = AestheticScorerDiff().to(device)
+#ground_truth_reward_model = AestheticScorerDiff().to(device)
+ground_truth_reward_model = torch.load('reward_model.pth').to(device)
 ground_truth_reward_model.requires_grad_(False)
 ground_truth_reward_model.eval()
 
