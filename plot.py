@@ -21,7 +21,7 @@ for idx, target in enumerate(targets):
     std_rewards = np.loadtxt(dir + '/std_rewards.csv', delimiter=',')
     x = np.arange(mean_rewards.shape[0])
     ax.plot(x, mean_rewards, color=colors[idx], label=f'target {target}')
-    ax.fill_between(x, mean_rewards - std_rewards, mean_rewards + std_rewards, color=colors[idx], alpha=0.08)
+    ax.fill_between(x, mean_rewards - std_rewards, mean_rewards + std_rewards, color=colors[idx], alpha=0.1)
 
 # set labels and title
 ax.set_xlabel('Optimization Steps')
