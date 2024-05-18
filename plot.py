@@ -19,7 +19,8 @@ for idx, target in enumerate(targets):
     dir = f'opt/target{target}guidance{guidance}seed{seed}_{prompt}'
     mean_rewards = np.loadtxt(dir + '/mean_rewards.csv', delimiter=',')
     std_rewards = np.loadtxt(dir + '/std_rewards.csv', delimiter=',')
-    x = np.arange(mean_rewards.shape[0])
+    # set x as discrete number
+    x = np.arange(mean_rewards.shape[0], dtype=int)
     ax.plot(x, mean_rewards, color=colors[idx], label=f'target {target}')
     ax.fill_between(x, mean_rewards - std_rewards, mean_rewards + std_rewards, color=colors[idx], alpha=0.1)
 
