@@ -31,9 +31,10 @@ ax.set_ylabel('Reward')
 
 # save
 # Move the legend to the upper left corner, outside the plot area
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+#plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.legend(loc='upper right')
 
 # Set the x-axis to use integer steps
-plt.xticks(np.arange(min(x), max(x)+1, 1))
+plt.xticks(np.arange(min(x), max(x)+1, 5))
 plt.savefig(f'guidance{guidance}_seed{seed}_{prompt}.png')
 plt.close()
