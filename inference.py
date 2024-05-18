@@ -102,6 +102,8 @@ for i in range(args.num_images // args.bs):
     image_ = image_.images
     image.extend(image_)
     re = ground_truth_reward_model(image_eval_)
+    if len(re.shape) > 1:
+        re = re.squeeze()
     rewards[i] = re.cpu().numpy()
     for idx, im in enumerate(image_):
         im.save(args.out_dir +'/'+ f'{i*args.bs+idx}_reward_{(rewards[i][idx]).item():.4f}_.png')
