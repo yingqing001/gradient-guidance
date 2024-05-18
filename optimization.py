@@ -8,7 +8,7 @@ from vae import encode
 import os
 import wandb
 import argparse
-from aesthetic_scorer import AestheticScorerDiff
+from scorer import AestheticScorerDiff, RCGDMScorer
 import math
 
 
@@ -82,7 +82,7 @@ sd_model.to(device)
 #reward_model = AestheticScorerDiff().to(device)
 
 # reward of RCGDM
-reward_model = torch.load('reward_model.pth').to(device)
+reward_model = RCGDMScorer().to(device)
 
 reward_model.requires_grad_(False)
 reward_model.eval()
