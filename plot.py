@@ -13,6 +13,7 @@ colors = ['orange', 'dodgerblue', 'forestgreen', 'tomato', 'purple', 'brown', 'p
 # create a figure and axis
 fig, ax = plt.subplots()
 # plot each data-point
+x = None
 for idx, target in enumerate(targets):
     target = float(target)
     # read csv file
@@ -29,6 +30,10 @@ ax.set_xlabel('Optimization Steps')
 ax.set_ylabel('Reward')
 
 # save
-plt.legend()
+# Move the legend to the upper left corner, outside the plot area
+plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+
+# Set the x-axis to use integer steps
+plt.xticks(np.arange(min(x), max(x)+1, 1))
 plt.savefig(f'guidance{guidance}_seed{seed}_{prompt}.png')
 plt.close()
