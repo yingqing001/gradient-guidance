@@ -10,7 +10,7 @@ from vae import encode
 import os
 import wandb
 import argparse
-from aesthetic_scorer import AestheticScorerDiff
+from scorer import AestheticScorerDiff, RCGDMScorer
 
 
 
@@ -77,7 +77,7 @@ sd_model.to(device)
 #reward_model = AestheticScorerDiff().to(device)
 
 # reward of RCGDM
-reward_model = torch.load('reward_model.pth').to(device)
+reward_model = RCGDMScorer().to(device)
 
 reward_model.requires_grad_(False)
 reward_model.eval()
@@ -87,7 +87,7 @@ sd_model.set_target(args.target)
 sd_model.set_guidance(args.guidance)
 
 #ground_truth_reward_model = AestheticScorerDiff().to(device)
-ground_truth_reward_model = torch.load('reward_model.pth').to(device)
+ground_truth_reward_model = RCGDMScorer().to(device)
 ground_truth_reward_model.requires_grad_(False)
 ground_truth_reward_model.eval()
 
