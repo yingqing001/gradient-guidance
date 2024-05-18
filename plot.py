@@ -3,12 +3,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-targets = [1,2,4,6,8,10]
+targets = [1,2,4,6]
 guidance = 100
 guidance = float(guidance)
 seed = 5
 prompt = 'fox'
-colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
+colors = ['orange', 'dodgerblue', 'forestgreen', 'tomato', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
 
 # create a figure and axis
 fig, ax = plt.subplots()
