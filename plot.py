@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-targets = [1,2,4,6,8,10]
+targets = [1,2,4,6,8]
 guidance = 1
 guidance = float(guidance)
 seed = 5
