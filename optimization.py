@@ -36,7 +36,7 @@ def parse():
 args = parse()
 
 print("-"*50)
-print("aesthetic reward optimization")
+#print("aesthetic reward optimization")
 print('seed:', args.seed)
 print('target:', args.target)
 print('guidance:', args.guidance)
