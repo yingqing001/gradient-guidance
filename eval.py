@@ -76,6 +76,7 @@ with open("imagenet_classes.txt", "r") as file:
     imagenet_classes = file.readlines()
 
 imagenet_classes = [class_name.strip() for class_name in imagenet_classes]
+random.seed(args.seed)
 sampled_classes = random.sample(imagenet_classes, args.repeat_epoch)
 
 
