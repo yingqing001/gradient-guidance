@@ -134,6 +134,12 @@ for n in range(args.repeat_epoch):
         for idx, im in enumerate(image_):
             im.save(img_dir + f'/{n * args.bs + idx}_optstep_{k}_reward_{(rewards[idx]).item():.4f}_.png')
 
+# calculate mean along batch dimension
+image_rewards_mean = np.mean(image_rewards, axis=2)
+# calculate std for image_rewards_mean along repeat_epoch dimension
+image_rewards_std = np.std(image_rewards_mean, axis=1)
+# save std to csv
+np.savetxt(args.out_dir + '/rewards_std_in_repeats.csv', image_rewards_std, delimiter=',')
 
 # reshape image_rewards to [opt_steps, repeat_epoch * bs]
 image_rewards = image_rewards.reshape(args.opt_steps, -1)
