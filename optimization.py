@@ -10,6 +10,7 @@ import wandb
 import argparse
 from scorer import AestheticScorerDiff, RCGDMScorer
 import math
+import random
 
 
 
@@ -18,7 +19,7 @@ def parse():
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--target", type=float, default=0.)
     parser.add_argument("--guidance", type=float, default=0.) 
-    parser.add_argument("--prompt", type=str, default= "a nice photo")
+    parser.add_argument("--prompt", type=str, default= "")
     parser.add_argument("--out_dir", type=str, default= "")
     parser.add_argument("--num_images", type=int, default=4)
     parser.add_argument("--bs", type=int, default=1)
@@ -57,7 +58,8 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = f'opt/target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
+    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_reward/target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
+
 img_dir = args.out_dir + '/images'
 try:
     os.makedirs(args.out_dir)
@@ -69,9 +71,19 @@ wandb.init(project="gradient_guided_dm", name=f'target{args.target}guidance{args
     config={
     'target': args.target,
     'guidance': args.guidance, 
-    'prompt': args.prompt,
     'seed': args.seed
 })
+
+prompts = None
+if args.prompt != "":
+    prompts = [args.prompt] * args.repeat_epoch
+else:
+    with open("imagenet_classes.txt", "r") as file:
+        imagenet_classes = file.readlines()
+    imagenet_classes = [class_name.strip() for class_name in imagenet_classes]
+    random.seed(args.seed)
+    prompts = random.sample(imagenet_classes, args.repeat_epoch)
+
 
 
 sd_model = GradGuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
@@ -111,6 +123,7 @@ for n in range(args.repeat_epoch):
     sd_model.set_target(args.target)
     sd_model.set_guidance(args.guidance)
     sd_model.set_linear_reward_model(is_init = True, batch_size = args.bs)
+    prompt = prompts[n]
     for k in range(args.opt_steps):
         #sd_model.set_guidance((args.guidance/math.sqrt(k + 1.0)))
         #sd_model.set_guidance((args.guidance/(k + 1.0)))
@@ -118,7 +131,7 @@ for n in range(args.repeat_epoch):
             init_i = None
         else:
             init_i = init_latents[n]
-        image_, image_eval_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i)
+        image_, image_eval_ = sd_model(prompt, num_images_per_prompt=args.bs, latents=init_i)
 
         grads, biases, rewards = get_grad_eval(image_eval_, reward_model)
         grads = grads.clone().detach()
@@ -164,4 +177,14 @@ plt.xlabel('Optimization Steps')
 plt.ylabel('Reward')
 # save
 plt.savefig(args.out_dir + '/reward_plot.png')
+plt.close()
+
+
+# plot mean_rewards and use image_rewards_std as error bar
+plt.figure(figsize=(10, 6))
+plt.errorbar(x, mean_rewards, yerr=image_rewards_std, fmt='o', color='dodgerblue')
+plt.xlabel('Optimization Steps')
+plt.ylabel('Reward')
+# save
+plt.savefig(args.out_dir + '/reward_plot_errorbar.png')
 plt.close()
