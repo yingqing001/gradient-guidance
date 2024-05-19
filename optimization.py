@@ -182,6 +182,8 @@ plt.close()
 
 # plot mean_rewards and use image_rewards_std as error bar
 plt.figure(figsize=(10, 6))
+# plot mean_rewards curve
+plt.plot(x, mean_rewards, color='dodgerblue')
 plt.errorbar(x, mean_rewards, yerr=image_rewards_std, fmt='o', color='dodgerblue')
 plt.xlabel('Optimization Steps')
 plt.ylabel('Reward')
