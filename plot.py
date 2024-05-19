@@ -3,8 +3,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-targets = [2,4,6,8,10]
-guidance = 100
+targets = [1,2,4,6,8,10]
+guidance = 10
 guidance = float(guidance)
 seed = 5
 prompt = 'fox'
