@@ -10,6 +10,7 @@ import wandb
 import argparse
 from scorer import AestheticScorerDiff, RCGDMScorer
 import math
+import random
 
 
 
@@ -70,6 +71,15 @@ for k  in range(args.opt_steps):
         pass
 
 
+
+with open("imagenet_classes.txt", "r") as file:
+    imagenet_classes = file.readlines()
+
+imagenet_classes = [class_name.strip() for class_name in imagenet_classes]
+sampled_classes = random.sample(imagenet_classes, args.repeat_epoch)
+
+
+
 sd_model = GradGuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
 sd_model.to(device)
 
@@ -101,6 +111,7 @@ for n in range(args.repeat_epoch):
     sd_model.set_target(args.target)
     sd_model.set_guidance(args.guidance)
     sd_model.set_linear_reward_model(is_init = True, batch_size = args.bs)
+    prompt = sampled_classes[n]
     for k in range(args.opt_steps):
         #sd_model.set_guidance((args.guidance/math.sqrt(k + 1.0)))
         #sd_model.set_guidance((args.guidance/(k + 1.0)))
@@ -108,7 +119,7 @@ for n in range(args.repeat_epoch):
             init_i = None
         else:
             init_i = init_latents[n]
-        image_, image_eval_ = sd_model(args.prompt, num_images_per_prompt=args.bs, latents=init_i)
+        image_, image_eval_ = sd_model(prompt, num_images_per_prompt=args.bs, latents=init_i)
 
         grads, biases, rewards = get_grad_eval(image_eval_, reward_model)
         grads = grads.clone().detach()
@@ -121,7 +132,7 @@ for n in range(args.repeat_epoch):
         
         image_ = image_.images
         for idx, im in enumerate(image_):
-            im.save(img_dir + f'/optstep_{k}/{n * args.bs + idx}_reward_{(rewards[idx]).item():.4f}_.png')
+            im.save(img_dir + f'/optstep_{k}/{n * args.bs + idx}_reward_{(rewards[idx]).item():.4f}_{prompt}.png')
 
 
 
