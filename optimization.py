@@ -58,7 +58,7 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{113}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
+    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{1134}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
 
 img_dir = args.out_dir + '/images'
 try:
