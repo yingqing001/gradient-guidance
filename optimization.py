@@ -58,7 +58,7 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{11366}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
+    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{113666}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
 
 img_dir = args.out_dir + '/images'
 try:
@@ -67,7 +67,7 @@ try:
 except:
     pass
 
-wandb.init(project="gradient_guided_dm", name=f'test_target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}',
+wandb.init(project="gradient_guided_dm", name=f'test_f_target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}',
     config={
     'target': args.target,
     'guidance': args.guidance, 
