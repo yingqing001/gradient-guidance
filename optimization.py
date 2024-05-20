@@ -58,7 +58,7 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{113666}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
+    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_forimage/target_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
 
 img_dir = args.out_dir + '/images'
 try:
@@ -84,7 +84,7 @@ else:
     random.seed(args.seed)
     prompts = random.sample(imagenet_classes, args.repeat_epoch)
 
-targets = [0, 1, 1, 3] + [args.target] * args.opt_steps
+targets =  [args.target] * args.opt_steps
 guidances = [args.guidance] * args.opt_steps
 
 
