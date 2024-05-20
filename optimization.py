@@ -85,6 +85,7 @@ else:
     prompts = random.sample(imagenet_classes, args.repeat_epoch)
 
 targets = [0, 1, 1, 3] + [args.target] * args.opt_steps
+guidances = [0, 10 ] + [args.guidance] * args.opt_steps
 
 
 sd_model = GradGuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
@@ -129,6 +130,7 @@ for n in range(args.repeat_epoch):
         #sd_model.set_guidance((args.guidance/math.sqrt(k + 1.0)))
         #sd_model.set_guidance((args.guidance/(k + 1.0)))
         sd_model.set_target(targets[k])
+        sd_model.set_guidance(guidances[k])
         if init_latents is None:
             init_i = None
         else:
