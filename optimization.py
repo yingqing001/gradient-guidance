@@ -153,8 +153,11 @@ for n in range(args.repeat_epoch):
 
 # calculate mean along batch dimension
 image_rewards_mean = np.mean(image_rewards, axis=2)
-# save mean to csv
+# save mean to csv opt_steps x repeat_epoch 
 np.savetxt(args.out_dir + '/rewards_mean_repeat.csv', image_rewards_mean, delimiter=',')
+
+
+
 # calculate std for image_rewards_mean along repeat_epoch dimension
 image_rewards_std = np.std(image_rewards_mean, axis=1)
 # save std to csv
