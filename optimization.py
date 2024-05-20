@@ -84,7 +84,7 @@ else:
     random.seed(args.seed)
     prompts = random.sample(imagenet_classes, args.repeat_epoch)
 
-targets = [1, 1, 1] + [args.target] * args.opt_steps
+targets = [0, 1, 1, 3] + [args.target] * args.opt_steps
 
 
 sd_model = GradGuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
