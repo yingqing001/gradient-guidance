@@ -58,7 +58,7 @@ else:
     init_latents = None
 
 if args.out_dir == "":
-    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{11}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
+    args.out_dir = '/scratch/gpfs/yg6736'+f'/opt_test/target_{0}_{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}'
 
 img_dir = args.out_dir + '/images'
 try:
@@ -85,7 +85,7 @@ else:
     prompts = random.sample(imagenet_classes, args.repeat_epoch)
 
 targets = [0, 1, 1, 3] + [args.target] * args.opt_steps
-guidances = [0, 10 ] + [args.guidance] * args.opt_steps
+guidances = [args.guidance] * args.opt_steps
 
 
 sd_model = GradGuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
@@ -160,6 +160,10 @@ np.savetxt(args.out_dir + '/rewards_std_in_repeats.csv', image_rewards_std, deli
 
 # reshape image_rewards to [opt_steps, repeat_epoch * bs]
 image_rewards = image_rewards.reshape(args.opt_steps, -1)
+# save image_rewards to csv opt_steps x (repeat_epoch * bs)
+np.savetxt(args.out_dir + '/rewards.csv', image_rewards, delimiter=',')
+
+
 # calculate mean rewards and std
 mean_rewards = np.mean(image_rewards, axis=1)
 std_rewards = np.std(image_rewards, axis=1)
