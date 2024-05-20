@@ -67,7 +67,7 @@ try:
 except:
     pass
 
-wandb.init(project="gradient_guided_dm", name=f'target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}',
+wandb.init(project="gradient_guided_dm", name=f'test_target{args.target}guidance{args.guidance}seed{args.seed}_{args.prompt}',
     config={
     'target': args.target,
     'guidance': args.guidance, 
