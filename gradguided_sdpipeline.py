@@ -213,8 +213,9 @@ class GradGuidedSDPipeline(StableDiffusionPipeline):
                     # compute the gradient of the loss w.r.t. the latents
                     l2_error = 0.5 * torch.nn.MSELoss()(out, target)
                     #self.reward_model.zero_grad()
-                    l2_error.backward()
-                    gradient_guidance = latents.grad.clone()
+                    #l2_error.backward()
+                    #gradient_guidance = latents.grad.clone()
+                    gradient_guidance = torch.autograd.grad(l2_error, latents)[0]
 
                     # add guidance to the noise
                     noise_pred += sqrt_1minus_alpha_t * self.target_guidance * gradient_guidance

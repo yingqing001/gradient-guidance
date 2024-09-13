@@ -1,4 +1,5 @@
 from gradguided_sdpipeline import GradGuidedSDPipeline
+from diffusers import StableDiffusionPipeline
 import torch
 import numpy as np
 from PIL import Image
@@ -11,6 +12,7 @@ import argparse
 from scorer import AestheticScorerDiff, RCGDMScorer
 import math
 import random
+import time
 
 
 
@@ -91,6 +93,16 @@ guidances = [args.guidance] * args.opt_steps
 sd_model = GradGuidedSDPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
 sd_model.to(device)
 
+pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", local_files_only=True)
+pipe = pipe.to(device)
+
+
+prompt = args.prompt
+pretrain_start = time.time()
+image = pipe(prompt).images[0]
+pretrain_end = time.time()
+
+pretrain_time = pretrain_end - pretrain_start
 
 # aesthetic reward model
 #reward_model = AestheticScorerDiff().to(device)
@@ -121,6 +133,9 @@ def get_grad_eval(ims, reward_model):
 
 
 image_rewards = np.zeros([args.opt_steps, args.repeat_epoch, args.bs])
+
+ft_start_time = time.time()
+
 for n in range(args.repeat_epoch):
     sd_model.set_target(args.target)
     sd_model.set_guidance(args.guidance)
@@ -147,9 +162,34 @@ for n in range(args.repeat_epoch):
         image_rewards[k, n] = rewards
         wandb.log({'step': k, 'reward_mean': rewards.mean(), 'reward_std': rewards.std()})
 
-        image_ = image_.images
-        for idx, im in enumerate(image_):
-            im.save(img_dir + f'/{n * args.bs + idx}_optstep_{k}_reward_{(rewards[idx]).item():.4f}_.png')
+        #image_ = image_.images
+        #for idx, im in enumerate(image_):
+        #    im.save(img_dir + f'/{n * args.bs + idx}_optstep_{k}_reward_{(rewards[idx]).item():.4f}_.png')
+
+
+
+end_time = time.time()
+total_optim_time = end_time - ft_start_time
+total_optim_round = args.repeat_epoch * args.opt_steps
+
+print(f"------------Time Summary-----------------")
+print(f"Total round: {total_optim_round}")
+print(f"The total optimizing time is: {total_optim_time} ")
+print(f"each round:\n optimizing time: {total_optim_time/total_optim_round} ")
+print(f"pretrain time: {pretrain_time}")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # calculate mean along batch dimension
 image_rewards_mean = np.mean(image_rewards, axis=2)
